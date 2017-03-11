@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="firebase_database_url" translatable="false">https://quizgame-ba103.firebaseio.com</string>
+  <string name="gcm_defaultSenderId" translatable="false">507854066212</string>
+  <string name="google_storage_bucket" translatable="false">quizgame-ba103.appspot.com</string>
+  <string name="google_api_key" translatable="false">AIzaSyA-g6IXs5a5fK5u-UOpWRO_bkuBGiIXUF0</string>
+  <string name="google_crash_reporting_api_key" translatable="false">AIzaSyA-g6IXs5a5fK5u-UOpWRO_bkuBGiIXUF0</string>
+  <string name="google_app_id" translatable="false">1:507854066212:android:7bf8dc4721900526</string>
+  <string name="default_web_client_id" translatable="false">507854066212-ho6bsilc4lal806ccun6cttf1uicejq7.apps.googleusercontent.com</string>
+</resources>
