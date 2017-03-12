@@ -210,6 +210,8 @@ namespace com.xavi.LoginModule.Domain
                         }
                     }
                 }
+
+                AuthStateChangedEvent();
             }
         }
 
@@ -233,6 +235,18 @@ namespace com.xavi.LoginModule.Domain
                 complete = true;
             }
             return complete;
+        }
+
+
+        private System.Action AuthStateChangedEvent = delegate {};
+        public void RegisterAuthStateChangedListener(System.Action listener)
+        {
+            AuthStateChangedEvent += listener;
+        }
+
+        public void UnregisterAuthStateChangedListener(System.Action listener)
+        {
+            AuthStateChangedEvent -= listener;
         }
     }
 }

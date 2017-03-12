@@ -36,8 +36,19 @@ public class LoginView : MonoBehaviour
         }
         else
         {
+            _loginController.RegisterAuthStateChangedListener(HandleAuthStateChangedEvent);
+
             // enable login options
             canvas.enabled = true;
+        }
+    }
+
+    public void HandleAuthStateChangedEvent ()
+    {
+        if (_loginController.IsSignedIn())
+        {
+            // go home if already logged in
+            GoHome(null);
         }
     }
 

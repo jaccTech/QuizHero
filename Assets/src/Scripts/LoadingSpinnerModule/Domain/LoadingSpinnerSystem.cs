@@ -7,7 +7,7 @@ namespace com.xavi.LoadingSpinnerModule
 {
     public class LoadingSpinnerSystem : ILoadingSpinnerSystem
     {
-        private bool spinnerActive;
+        private bool spinnerActive = false;
         private Dictionary<SpinnerType,string> spinners = new Dictionary<SpinnerType, string>()
         {
             { SpinnerType.SIMPLE, "SimpleLoadingSpinner" }
