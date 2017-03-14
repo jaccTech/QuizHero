@@ -11,7 +11,12 @@
     public interface ILoginSystem
     {
     //    void StartLogin(ILoginData loginData, System.Action<ILoginUser> successCallback, System.Action<LoginError> errorCallback);
-        void Initialize(System.Action onDone);
+
+        /// <summary>
+        /// Initialize the specified onDone.
+        /// </summary>
+        /// <param name="onDone">On done.</param>
+        void Initialize(System.Action onDone = null);
 
         /// <summary>
         /// Determines whether this instance is signed in.
@@ -27,8 +32,13 @@
         /// <param name="onDone">On done.</param>
         void CreateUserWithEmailAndPasswordAsync(string email, string password, System.Action<LoginResult> onDone);
 
-
-        void SignInWithEmailAndPasswordAsync();
+        /// <summary>
+        /// Signs the in with email and password async.
+        /// </summary>
+        /// <param name="email">Email.</param>
+        /// <param name="password">Password.</param>
+        /// <param name="onDone">On done.</param>
+        void SignInWithEmailAndPasswordAsync(string email, string password, System.Action<LoginResult> onDone);
 
         /// <summary>
         /// Registers the auth state changed listener.

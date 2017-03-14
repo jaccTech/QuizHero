@@ -5,8 +5,8 @@ using Zenject;
 using UnityEngine.UI;
 using System.Text.RegularExpressions;
 using UnityEngine.SceneManagement;
-using com.xavi.QuizGame.SceneModule.Domain;
 using com.xavi.LoginModule.Domain;
+using com.xavi.QuizHero.Domain.LoginSystem;
 
 namespace com.xavi.LoginModule.Presentation.EmailPassLogin
 {
@@ -14,67 +14,76 @@ namespace com.xavi.LoginModule.Presentation.EmailPassLogin
     {
         [Inject] private ILoginSystem _loginController;
 
-
         public InputField email;
-        public Button goButton;
+        public InputField pass;
         public FeedbackMessagePanel feedbackMessage;
+        public Button registerButton;
+        public Button loginButton;
+        public Button cancelButton;
 
         // Use this for initialization
         void Start()
         {
+            // hide message at the begining
             feedbackMessage.HideMessage();
+
+            cancelButton.onClick.AddListener(HandleCancelButton);
+            registerButton.onClick.AddListener(RequestEmailPassRegistration);
+            loginButton.onClick.AddListener(RequestEmailPassLogin);
         }
 
         /// <summary>
         /// Requests the email pass login.
         /// </summary>
-        public void RequestEmailPassLogin()
+        private void RequestEmailPassLogin()
         {
-            if (!ValidateInput())
+            if (!ValidateEmail())
                 return;
 
-
+            _loginController.SignInWithEmailAndPasswordAsync(
+                email.text,
+                pass.text,
+                HandleSignInRequestResult);
         }
 
         /// <summary>
         /// Requests the email pass registration.
         /// </summary>
-        public void RequestEmailPassRegistration()
+        private void RequestEmailPassRegistration()
         {
             feedbackMessage.HideMessage();
 
-            if (!ValidateInput())
+            if (!ValidateEmail() || !ValidatePassword())
                 return;
 
             _loginController.CreateUserWithEmailAndPasswordAsync(
                 email.text,
-                "somepass",
-                HandleRegistrationRequestResult);
-        }
-
-        private void HandleRegistrationRequestResult(LoginResult loginResult)
-        {
-            switch (loginResult)
-            {
-                case LoginResult.ERROR:
-                    feedbackMessage.ShowMessage("Something went wrong...", FeedbackMessagePanel.StyleType.ERROR);
-                    break;
-                case LoginResult.CANCELLED:
-                    break;
-                case LoginResult.OK:
-                    feedbackMessage.ShowMessage("Registration OK.", FeedbackMessagePanel.StyleType.SUCCESS);
-                    CloseView();
-                    break;
-            }
+                pass.text,
+                HandleSignInRequestResult);
         }
 
         /// <summary>
         /// Handles the cancel button.
         /// </summary>
-        public void HandleCancelButton ()
+        private void HandleCancelButton ()
         {
-//            SceneManager.LoadScene(SceneConstanst.SceneName.WelcomeScene, LoadSceneMode.Single);
             CloseView();
+        }
+
+        private void HandleSignInRequestResult(LoginResult loginResult)
+        {
+            switch (loginResult)
+            {
+                case LoginResult.ERROR:
+                    feedbackMessage.ShowMessage("Invalid email and/or password...", FeedbackMessagePanel.StyleType.ERROR);
+                    break;
+                case LoginResult.CANCELLED:
+                    break;
+                case LoginResult.OK:
+                    feedbackMessage.ShowMessage("SigIn OK!", FeedbackMessagePanel.StyleType.SUCCESS);
+                    CloseView();
+                    break;
+            }
         }
 
         private void CloseView ()
@@ -86,11 +95,12 @@ namespace com.xavi.LoginModule.Presentation.EmailPassLogin
         }
 
         /// <summary>
-        /// Validates the input.
+        /// Validates the email.
         /// </summary>
-        /// <returns><c>true</c>, if input was validated, <c>false</c> otherwise.</returns>
-        private bool ValidateInput()
+        /// <returns><c>true</c>, if email was validated, <c>false</c> otherwise.</returns>
+        private bool ValidateEmail()
         {
+            // validate email
             if (email == null || string.IsNullOrEmpty(email.text))
             {
                 feedbackMessage.ShowMessage("Please enter an email.", FeedbackMessagePanel.StyleType.ERROR);
@@ -102,7 +112,22 @@ namespace com.xavi.LoginModule.Presentation.EmailPassLogin
                 return false;
             }
 
-            feedbackMessage.ShowMessage("Email OK.", FeedbackMessagePanel.StyleType.SUCCESS);
+            return true;
+        }
+
+        private bool ValidatePassword ()
+        {
+            if (pass == null || string.IsNullOrEmpty(pass.text))
+            {
+                feedbackMessage.ShowMessage("Please enter a password.", FeedbackMessagePanel.StyleType.ERROR);
+                return false;
+            }
+            else if (!TestPassword.IsPassword(pass.text))
+            {
+                feedbackMessage.ShowMessage(TestPassword.ErrorMessage, FeedbackMessagePanel.StyleType.ERROR);
+                return false;
+            }
+
             return true;
         }
 
@@ -133,6 +158,77 @@ namespace com.xavi.LoginModule.Presentation.EmailPassLogin
                     return Regex.IsMatch(email, MatchEmailPattern);
                 else
                     return false;
+            }
+        }
+
+        /// <summary>
+        /// Test password.
+        /// </summary>
+        public static class TestPassword
+        {
+            public static Regex hasNumberRegex = new Regex(@"[0-9]+");
+            public static Regex hasMiniMaxCharsRegex = new Regex(@".{8,15}");
+            public static Regex hasUpperCharRegex = new Regex(@"[A-Z]+");
+            public static Regex hasLowerCharRegex = new Regex(@"[a-z]+");
+            public static Regex hasSymbolsRegex = new Regex(@"[!@#$%^&*()_+=\[{\]};:<>|./?,-]");
+
+            /// <summary>
+            /// Gets the error message.
+            /// </summary>
+            /// <value>The error message.</value>
+            public static string ErrorMessage
+            {
+                get;
+                private set;
+            }
+
+            /// <summary>
+            /// Determines if is password is valid.
+            /// </summary>
+            /// <returns><c>true</c> if password is valid; otherwise, <c>false</c>.</returns>
+            /// <param name="password">Password.</param>
+            public static bool IsPassword(string password)
+            {
+                ErrorMessage = string.Empty;
+
+                // check null or empty
+                if (string.IsNullOrEmpty(password))
+                    return false;
+
+                // check length
+                if (!hasMiniMaxCharsRegex.IsMatch(password))
+                {
+                    ErrorMessage = "Password should not be less than or greater than 8 characters";
+                    return false;
+                }
+                // check numeric value
+                else if (!hasNumberRegex.IsMatch(password))
+                {
+                    ErrorMessage = "Password should contain at least one numeric value";
+                    return false;
+                }
+                // check lower char
+                else if (!hasLowerCharRegex.IsMatch(password))
+                {
+                    ErrorMessage = "Password should contain At least one lower case letter";
+                    return false;
+                }
+                // check upper char
+                else if (!hasUpperCharRegex.IsMatch(password))
+                {
+                    ErrorMessage = "Password should contain At least one upper case letter";
+                    return false;
+                }
+                // check symbol
+                else if (!hasSymbolsRegex.IsMatch(password))
+                {
+                    ErrorMessage = "Password should contain At least one special case characters";
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
         }
     }

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Firebase.Auth;
 using System.Threading.Tasks;
+using com.xavi.LoginModule.Domain;
 
-namespace com.xavi.LoginModule.Domain
+namespace com.xavi.QuizHero.Domain.LoginSystem
 {
     public class FirebaseLoginSystem : ILoginSystem
     {
@@ -14,7 +15,7 @@ namespace com.xavi.LoginModule.Domain
 
         private Firebase.DependencyStatus dependencyStatus;
 
-        public void Initialize(System.Action onDone)
+        public void Initialize(System.Action onDone = null)
         {
             if (initialized)
                 return;
@@ -78,7 +79,7 @@ namespace com.xavi.LoginModule.Domain
         {
             Debug.Log(string.Format("Attempting to create user {0}...", email));
             auth.CreateUserWithEmailAndPasswordAsync(email, password)
-             .ContinueWith((authTask) =>
+                .ContinueWith((authTask) =>
                 {
                     if (authTask.IsCanceled)
                     {
@@ -96,48 +97,42 @@ namespace com.xavi.LoginModule.Domain
                     else if (authTask.IsCompleted)
                     {
                         Debug.Log("CreateUserWithEmailAndPasswordAsync completed");
+//                        UpdateUserProfile(newDisplayName: newDisplayName);
+//                        Firebase.Auth.FirebaseUser newUser = authTask.Result;
                         if (onDone != null)
                             onDone(LoginResult.OK);
                     }
                 });
         }
 
-        void HandleTaskResult(Task<Firebase.Auth.FirebaseUser> authTask, System.Action onDone)
+        public void SignInWithEmailAndPasswordAsync(string email, string password, System.Action<LoginResult> onDone)
         {
-            if (authTask.IsCanceled)
-            {
-                Debug.Log("CreateUserWithEmailAndPasswordAsync canceled.");
-            }
-            else if (authTask.IsFaulted)
-            {
-                Debug.Log("CreateUserWithEmailAndPasswordAsync encounted an error.");
-                Debug.LogError(authTask.Exception.ToString());
-            }
-            else if (authTask.IsCompleted)
-            {
-                if (auth.CurrentUser != null)
+            Debug.Log(string.Format("Attempting to login user {0}...", email));
+            auth.SignInWithEmailAndPasswordAsync(email, password)
+                .ContinueWith((authTask) =>
                 {
-                    Debug.Log("CreateUserWithEmailAndPasswordAsync completed");
-                    Debug.Log(string.Format("User Info: {0}  {1}", auth.CurrentUser.Email,
-                            auth.CurrentUser.ProviderId));
-//                UpdateUserProfile(newDisplayName: newDisplayName);
-                }
-            }
-        }
-
-        void HandleCreateResult(Task<Firebase.Auth.FirebaseUser> authTask,
-                                string newDisplayName = null)
-        {
-//        EnableUI();
-            if (LogTaskCompletion(authTask, "User Creation"))
-            {
-                if (auth.CurrentUser != null)
-                {
-                    Debug.Log(string.Format("User Info: {0}  {1}", auth.CurrentUser.Email,
-                            auth.CurrentUser.ProviderId));
-//                UpdateUserProfile(newDisplayName: newDisplayName);
-                }
-            }
+                    if (authTask.IsCanceled)
+                    {
+                        Debug.Log("SignInWithEmailAndPasswordAsync canceled.");
+                        if (onDone != null)
+                            onDone(LoginResult.CANCELLED);
+                    }
+                    else if (authTask.IsFaulted)
+                    {
+                        Debug.Log("SignInWithEmailAndPasswordAsync encounted an error.");
+                        Debug.LogError(authTask.Exception.ToString());
+                        if (onDone != null)
+                            onDone(LoginResult.ERROR);
+                    }
+                    else if (authTask.IsCompleted)
+                    {
+                        Debug.Log("SignInWithEmailAndPasswordAsync completed");
+//                        UpdateUserProfile(newDisplayName: newDisplayName);
+//                        Firebase.Auth.FirebaseUser newUser = authTask.Result;
+                        if (onDone != null)
+                            onDone(LoginResult.OK);
+                    }
+                });
         }
 
         //    // Update the user's display name with the currently selected display name.
@@ -154,11 +149,6 @@ namespace com.xavi.LoginModule.Domain
         //            PhotoUrl = user.PhotoUrl,
         //        }).ContinueWith(HandleUpdateUserProfile);
         //    }
-
-        public void SignInWithEmailAndPasswordAsync()
-        {
-        
-        }
 
         // Display user information.
         void DisplayUserInfo(Firebase.Auth.IUserInfo userInfo, int indentLevel)
@@ -181,7 +171,6 @@ namespace com.xavi.LoginModule.Domain
             }
         }
 
-
         // Track state changes of the auth object.
         void AuthStateChanged(object sender, System.EventArgs eventArgs)
         {
@@ -193,6 +182,9 @@ namespace com.xavi.LoginModule.Domain
                     Debug.Log("Signed out " + user.UserId);
                 }
                 user = auth.CurrentUser;
+
+                
+
                 if (signedIn)
                 {
                     Debug.Log("Signed in " + user.UserId);
@@ -215,30 +207,10 @@ namespace com.xavi.LoginModule.Domain
             }
         }
 
-        // Log the result of the specified task, returning true if the task
-        // completed successfully, false otherwise.
-        bool LogTaskCompletion(Task task, string operation)
+        private System.Action AuthStateChangedEvent = delegate
         {
-            bool complete = false;
-            if (task.IsCanceled)
-            {
-                Debug.Log(operation + " canceled.");
-            }
-            else if (task.IsFaulted)
-            {
-                Debug.Log(operation + " encounted an error.");
-                Debug.Log(task.Exception.ToString());
-            }
-            else if (task.IsCompleted)
-            {
-                Debug.Log(operation + " completed");
-                complete = true;
-            }
-            return complete;
-        }
+        };
 
-
-        private System.Action AuthStateChangedEvent = delegate {};
         public void RegisterAuthStateChangedListener(System.Action listener)
         {
             AuthStateChangedEvent += listener;

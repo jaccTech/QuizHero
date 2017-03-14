@@ -1,6 +1,7 @@
 ﻿using Zenject;
 using com.xavi.LoadingSpinnerModule;
 using com.xavi.LoginModule.Domain;
+using com.xavi.QuizHero.Domain.LoginSystem;
 
 namespace com.xavi.LoginModule.Presentation.Installer
 {

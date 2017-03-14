@@ -1,4 +1,4 @@
-﻿namespace com.xavi.QuizGame.SceneModule.Domain
+﻿namespace com.xavi.QuizHero.Domain.LoginSystem
 {
     public class SceneConstanst
     {

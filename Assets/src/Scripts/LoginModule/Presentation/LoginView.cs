@@ -3,8 +3,8 @@ using System.Collections;
 using Zenject;
 using UnityEngine.SceneManagement;
 using com.xavi.LoadingSpinnerModule;
-using com.xavi.QuizGame.SceneModule.Domain;
 using com.xavi.LoginModule.Domain;
+using com.xavi.QuizHero.Domain.LoginSystem;
 
 public class LoginView : MonoBehaviour
 {
