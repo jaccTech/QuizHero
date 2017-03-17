@@ -7,9 +7,11 @@ namespace com.xavi.QuizHero.QuizModule.Domain
     {
         public string question;
         public List<string> options;
+        public bool isMultiselection;
 
         public string Question { get { return question; } }
         public List<string> Options { get { return options; } }
+        public bool IsMultiselection { get { return isMultiselection; } }
     }
 }
 

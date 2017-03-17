@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 namespace com.xavi.QuizHero.QuizModule.Presentation
 {
@@ -11,33 +12,47 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
         [SerializeField] Image selectedStateBackground;
         [SerializeField] Image unselectedStateBackground;
 
+        private bool isSelected;
+
         public int Id { get; private set; }
-        public bool IsSelected { get; private set; }
 
         public delegate void OptionSelectionChangedEventDelegate(QuizOptionView quiz);
+
         public event OptionSelectionChangedEventDelegate OptionSelectionChangedEvent;
 
-        public void SetData (int id, string text)
+        public bool IsSelected
+        {
+            get { return isSelected; }
+            set
+            {
+                isSelected = value;
+                UpdateVisuals();
+            }
+        }
+
+        public void SetData(int id, string text)
         {
             this.Id = id;
             description.text = text;
             IsSelected = false;
-            UpdateVisuals();
         }
 
-        public void HandleClick ()
+        public void HandleClick()
         {
             IsSelected = !IsSelected;
-            UpdateVisuals();
 
             if (OptionSelectionChangedEvent != null)
                 OptionSelectionChangedEvent(this);
         }
 
-        void UpdateVisuals ()
+        void UpdateVisuals()
         {
             selectedStateBackground.enabled = IsSelected;
             unselectedStateBackground.enabled = !IsSelected;
+        }
+
+        public class Factory : Factory<QuizOptionView>
+        {
         }
     }
 }

@@ -6,5 +6,6 @@ namespace com.xavi.QuizHero.QuizModule.Domain
     {
         string Question { get; }
         List<string> Options { get; }
+        bool IsMultiselection { get; }
     }
 }

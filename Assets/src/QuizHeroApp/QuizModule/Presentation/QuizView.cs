@@ -11,12 +11,13 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
     public class QuizView : MonoBehaviour
     {
         [Inject] private IQuizApp _quizApp;
+        [Inject] private QuizOptionView.Factory _quizOptionFactory;
 
         [SerializeField] private Text question;
-        [SerializeField] private GameObject optionPrefab;
         [SerializeField] private RectTransform optionsContainer;
 
         private bool loading;
+        private Dictionary<int,QuizOptionView> options = new Dictionary<int, QuizOptionView>();
         private List<int> selectedOption = new List<int>();
 
         public System.Action<bool> OnLoadingEvent;
@@ -59,14 +60,7 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
             List<string> options = _quizApp.Stage.QuizVO.Options;
             for (int i = 0; i < options.Count; i++)
             {
-                RectTransform optionTransform = Instantiate<Transform>(optionPrefab.transform).GetComponent<RectTransform>();
-                optionTransform.SetParent(optionsContainer);
-                optionTransform.localScale = Vector3.one;
-                optionTransform.SetInsetAndSizeFromParentEdge (UnityEngine.RectTransform.Edge.Left, 0, optionsContainer.rect.size.x);
-
-                QuizOptionView optionView = optionTransform.GetComponent<QuizOptionView>();
-                optionView.OptionSelectionChangedEvent += HandleOptionSelectedChanged;
-                optionView.SetData(i,options[i]);
+                AddOption(i, options[i]);
 
                 yield return null;
             }
@@ -74,16 +68,39 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
             StopLoading();
         }
 
+        private void AddOption (int id, string text)
+        {
+            QuizOptionView optionView = _quizOptionFactory.Create();
+            optionView.OptionSelectionChangedEvent += HandleOptionSelectedChanged;
+            optionView.SetData(id,text);
+
+            RectTransform optionTransform = optionView.gameObject.GetComponent<RectTransform>();
+            optionTransform.SetParent(optionsContainer);
+            optionTransform.localScale = Vector3.one;
+            optionTransform.SetInsetAndSizeFromParentEdge (UnityEngine.RectTransform.Edge.Left, 0, optionsContainer.rect.size.x);
+
+            options.Add(id, optionView);
+        }
+
         private void HandleOptionSelectedChanged (QuizOptionView optionView)
         {
             if (optionView.IsSelected)
             {
-                Debug.Log("Selected... " + optionView.Id);
+                // deselect all
+                if (!this._quizApp.Stage.QuizVO.IsMultiselection)
+                {
+                    for (int i = 0; i < selectedOption.Count; i++)
+                    {
+                        options[selectedOption[i]].IsSelected = false;
+                    }
+                    selectedOption.Clear();
+                }
+
+                // select last one
                 selectedOption.Add(optionView.Id);
             }
             else
             {
-                Debug.Log("Deselected... " + optionView.Id);
                 selectedOption.Remove(optionView.Id);
             }
 
@@ -96,6 +113,7 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
 
             // children
             selectedOption.Clear();
+            options.Clear();
             QuizOptionView[] children = optionsContainer.GetComponentsInChildren<QuizOptionView>();
             if (children != null)
             {
