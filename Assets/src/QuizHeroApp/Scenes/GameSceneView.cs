@@ -6,7 +6,6 @@ namespace com.xavi.QuizHero.GameModule.Presentation
 {
     public class GameSceneView : MonoBehaviour
     {
-        [SerializeField] private Button commitButton;
         [SerializeField] private QuizView quizView;
         [SerializeField] private GameObject loadingPopup;
 

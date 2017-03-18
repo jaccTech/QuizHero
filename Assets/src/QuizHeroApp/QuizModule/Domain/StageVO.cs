@@ -5,11 +5,11 @@ namespace com.xavi.QuizHero.QuizModule.Domain
     public class StageVO : IStageVO
     {
         public long level;
-        public long quiz;
-        public IQuizVO quizVO;
+        public long question;
+        public IQuestionVO questionVO;
 
         public long Level { get { return level; } }
-        public long QuizId { get { return quiz; } }
-        public IQuizVO QuizVO { get { return quizVO; } }
+        public long QuestionId { get { return question; } }
+        public IQuestionVO QuestionVO { get { return questionVO; } }
     }
 }

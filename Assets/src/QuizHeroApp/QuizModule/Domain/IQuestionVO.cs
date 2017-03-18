@@ -2,7 +2,7 @@
 
 namespace com.xavi.QuizHero.QuizModule.Domain
 {
-    public interface IQuizVO
+    public interface IQuestionVO
     {
         string Question { get; }
         List<string> Options { get; }

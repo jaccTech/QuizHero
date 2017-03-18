@@ -3,7 +3,7 @@
 namespace com.xavi.QuizHero.QuizModule.Domain
 {
     [System.Serializable]
-    public class QuizVO : IQuizVO
+    public class QuestionVO : IQuestionVO
     {
         public string question;
         public List<string> options;

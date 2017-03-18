@@ -12,6 +12,8 @@ namespace com.xavi.QuizHero.QuizModule.Domain
         private IDatabaseSystem _databaseSystem;
         private ILoginSystem _loginSystem;
 
+        private string UserId { get { return _loginSystem.LoginData.UserId; } }
+
         public QuizSystem(IDatabaseSystem databaseSystem, ILoginSystem loginSystem)
         {
             this._databaseSystem = databaseSystem;
@@ -20,23 +22,25 @@ namespace com.xavi.QuizHero.QuizModule.Domain
 
         public void FetchCurrentStage(QuizUpdatedEvent quizUpdatedEventListener)
         {
-            string userId = _loginSystem.LoginData.UserId;
-//            Debug.Log("FetchCurrentQuiz userId: " + userId);
-
             // get stage
-            this._databaseSystem.GetValueAsync<StageVO>("users/" + userId + "/stage", (StageVO stage) =>
+            this._databaseSystem.GetValueAsync<StageVO>("users/" + UserId + "/stage", (StageVO stage) =>
                 {
-//                    Debug.Log("FetchCurrentQuiz stage: " + stage);
-
                     // get quiz
-//                    Debug.Log("Calling path... " + "quiz/" + stage.level + "/" + stage.quiz);
-                    this._databaseSystem.GetValueAsync<QuizVO>("quiz/" + stage.level + "/" + stage.quiz, (QuizVO quiz) =>
+                    this._databaseSystem.GetValueAsync<QuestionVO>("questions/" + stage.question, (QuestionVO quiz) =>
                         {
-//                            Debug.Log("FetchCurrentQuiz quiz: " + quiz);
-                            stage.quizVO = quiz;
+                            stage.questionVO = quiz;
                             quizUpdatedEventListener(stage);
                         });
                 });
+        }
+
+        public void SubmitAnswer(long question, IAnswerVO answer, System.Action onDoneCallback)
+        {
+            Debug.Log("submiting answer " + answer);
+            this._databaseSystem.SetRawJsonValueAsync(
+                "answers/" + UserId + "/" + question,
+                JsonUtility.ToJson(answer),
+                onDoneCallback);
         }
     }
 }

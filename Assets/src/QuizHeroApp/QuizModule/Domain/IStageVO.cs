@@ -3,7 +3,7 @@
     public interface IStageVO
     {
         long Level { get; }
-        long QuizId { get; }
-        IQuizVO QuizVO { get; }
+        long QuestionId { get; }
+        IQuestionVO QuestionVO { get; }
     }
 }

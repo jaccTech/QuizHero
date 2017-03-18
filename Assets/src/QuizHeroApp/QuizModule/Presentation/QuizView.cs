@@ -15,12 +15,18 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
 
         [SerializeField] private Text question;
         [SerializeField] private RectTransform optionsContainer;
+        [SerializeField] private  Button submitButton;
 
         private bool loading;
         private Dictionary<int,QuizOptionView> options = new Dictionary<int, QuizOptionView>();
-        private List<int> selectedOption = new List<int>();
+        private List<int> selectedOptions = new List<int>();
 
         public System.Action<bool> OnLoadingEvent;
+
+        void Start()
+        {
+            submitButton.onClick.AddListener(HandleSubmitQuizButtonClick);
+        }
 
         void OnEnable()
         {
@@ -53,11 +59,9 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
             ClearView();
 
             // question
-            question.text = _quizApp.Stage.QuizVO.Question;
+            question.text = _quizApp.Stage.QuestionVO.Question;
 
-            yield return null;
-
-            List<string> options = _quizApp.Stage.QuizVO.Options;
+            List<string> options = _quizApp.Stage.QuestionVO.Options;
             for (int i = 0; i < options.Count; i++)
             {
                 AddOption(i, options[i]);
@@ -68,42 +72,57 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
             StopLoading();
         }
 
-        private void AddOption (int id, string text)
+        private void AddOption(int id, string text)
         {
             QuizOptionView optionView = _quizOptionFactory.Create();
             optionView.OptionSelectionChangedEvent += HandleOptionSelectedChanged;
-            optionView.SetData(id,text);
+            optionView.SetData(id, text);
 
             RectTransform optionTransform = optionView.gameObject.GetComponent<RectTransform>();
             optionTransform.SetParent(optionsContainer);
             optionTransform.localScale = Vector3.one;
-            optionTransform.SetInsetAndSizeFromParentEdge (UnityEngine.RectTransform.Edge.Left, 0, optionsContainer.rect.size.x);
+            optionTransform.SetInsetAndSizeFromParentEdge(UnityEngine.RectTransform.Edge.Left, 0, optionsContainer.rect.size.x);
 
             options.Add(id, optionView);
         }
 
-        private void HandleOptionSelectedChanged (QuizOptionView optionView)
+        private void HandleOptionSelectedChanged(QuizOptionView optionView)
         {
             if (optionView.IsSelected)
             {
-                // deselect all
-                if (!this._quizApp.Stage.QuizVO.IsMultiselection)
+                // deselect all if not multiselection
+                if (!this._quizApp.Stage.QuestionVO.IsMultiselection)
                 {
-                    for (int i = 0; i < selectedOption.Count; i++)
+                    for (int i = 0; i < selectedOptions.Count; i++)
                     {
-                        options[selectedOption[i]].IsSelected = false;
+                        options[selectedOptions[i]].IsSelected = false;
                     }
-                    selectedOption.Clear();
+                    selectedOptions.Clear();
                 }
 
                 // select last one
-                selectedOption.Add(optionView.Id);
+                selectedOptions.Add(optionView.Id);
             }
             else
             {
-                selectedOption.Remove(optionView.Id);
+                selectedOptions.Remove(optionView.Id);
             }
+        }
 
+        private void HandleSubmitQuizButtonClick()
+        {
+            // validations
+            if (selectedOptions.Count == 0)
+                return;
+
+            Debug.Log("HandleSubmitQuizButtonClick.selectedOptions: " + selectedOptions);
+            
+            this._quizApp.SubmitAnswer(
+                new AnswerVO(selectedOptions),
+                () => // onDone
+                {
+                    Debug.Log("HandleSubmitQuizButtonClick done");
+                });
         }
 
         private void ClearView()
@@ -112,7 +131,7 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
             question.text = "";
 
             // children
-            selectedOption.Clear();
+            selectedOptions.Clear();
             options.Clear();
             QuizOptionView[] children = optionsContainer.GetComponentsInChildren<QuizOptionView>();
             if (children != null)

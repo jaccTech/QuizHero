@@ -11,6 +11,8 @@ namespace com.xavi.QuizHero.DatabaseModule.Domain
     public interface IDatabaseSystem
     {
         void GetValueAsync<T>(string referencePath, ModelUpdatedEvent<T> modelUpdatedEvent);
+
+        void SetRawJsonValueAsync (string referencePath, string value, System.Action onDoneCallback);
     }
 }
 

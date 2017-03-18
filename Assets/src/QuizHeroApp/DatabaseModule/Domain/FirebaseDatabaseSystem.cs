@@ -31,5 +31,25 @@ namespace com.xavi.QuizHero.DatabaseModule.Domain
                     }
                 });
         }
+
+        public void SetRawJsonValueAsync (string referencePath, string value, System.Action onDoneCallback)
+        {
+            Debug.Log(string.Format("Setting {0} to {1}", referencePath, value));
+            FirebaseDatabase.DefaultInstance
+                .GetReference(referencePath)
+                .SetRawJsonValueAsync(value).ContinueWith(task =>
+                {
+                        if (task.IsFaulted)
+                        {
+                            // Handle the error...
+                            Debug.LogError(task.Exception.ToString());
+                        }
+                        else if (task.IsCompleted)
+                        {
+                            if (onDoneCallback != null)
+                                onDoneCallback();
+                        }    
+                });
+        }
     }
 }
