@@ -6,13 +6,13 @@ using com.xavi.QuizHero.QuizModule.Application;
 using com.xavi.QuizHero.QuizModule.Domain;
 using com.xavi.QuizHero.QuizModule.Presentation;
 
-public class QuizModuleInstaller : MonoInstaller
+public class HomeModuleInstaller : MonoInstaller
 {
-    public GameObject answerOptionPrefab;
+    public GameObject quizOptionPrefab;
 
     public override void InstallBindings()
     {
         Container.Bind<IQuizSystem>().To<QuizSystem>().AsSingle();
-        Container.BindFactory<AswerOptionView, AswerOptionView.Factory>().FromComponentInNewPrefab(answerOptionPrefab);
+        Container.BindFactory<HomeQuizOptionView, HomeQuizOptionView.Factory>().FromComponentInNewPrefab(quizOptionPrefab);
     }
 }

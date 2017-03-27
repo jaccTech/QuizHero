@@ -6,14 +6,7 @@ namespace com.xavi.QuizHero.GameModule.Presentation
 {
     public class GameSceneView : MonoBehaviour
     {
-        [SerializeField] private QuizView quizView;
         [SerializeField] private GameObject loadingPopup;
-
-        void Awake ()
-        {
-            Debug.Log("GameSceneView.Awake");
-            quizView.OnLoadingEvent += HandleLoadingPopupEvent;
-        }
 
         private void HandleLoadingPopupEvent (bool active)
         {

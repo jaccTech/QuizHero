@@ -1,34 +1,134 @@
 ﻿using com.xavi.QuizHero.QuizModule.Domain;
-using System.Collections.Generic;
+using UnityEngine;
+using com.xavi.QuizHero.QuizModule.Presentation;
+using Zenject;
+using UnityEngine.UI;
 
 namespace com.xavi.QuizHero.QuizModule.Application
 {
-    public class QuizApp : IQuizApp
+    public class QuizApp : MonoBehaviour
     {
-        private IQuizSystem _quizSystem;
+        [Inject] private IQuizSystem _quizSystem;
 
-        private IStageVO stage;
+        [SerializeField] private QuestionView questionView;
+        [SerializeField] private TimerView timeLeft;
 
-        public QuizApp (IQuizSystem quizSystem)
+        private StageVO currentStage;
+//        private bool loading;
+
+        void Start()
         {
-            this._quizSystem = quizSystem;
+            questionView.OnConfirmAnswerEvent += HandleConfirmAnswer;
+            this._quizSystem.RegisterCurrentStageValueChangedListener(HandleCurrentStageFetch);
         }
 
-        public IStageVO Stage { get { return stage; } }
-
-        public void FetchCurrentStage (System.Action onDone)
+        void OnEnable()
         {
-            this._quizSystem.FetchCurrentStage((IStageVO stage) =>
+            questionView.EnableInput(false);
+            questionView.ClearView();
+            FetchCurrentStage();
+        }
+
+        private void FetchCurrentStage()
+        {
+            this._quizSystem.FetchCurrentStage(HandleCurrentStageFetch);
+        }
+
+        private void HandleCurrentStageFetch(StageVO stage)
+        {
+            Debug.Log("QuizApp.HandleCurrentStageFetch " + stage);
+            currentStage = stage;
+
+            if (currentStage != null)
+            {
+                questionView.UpdateQuestion(
+                    currentStage.currentQuestion,
+                    () => // onDoneCallback
+                    {
+                        // enable input
+                        questionView.EnableInput(true);
+                        // set timer
+                        timeLeft.StartTimer(currentStage.currentQuestion.time, HandleTimeOut);
+                    }
+                );
+            }
+            else
+            {
+                questionView.ClearView();
+            }
+        }
+
+        private void HandleConfirmAnswer()
+        {
+            // stop timer
+            timeLeft.StopTimer();
+
+            // disable input
+            questionView.EnableInput(false);
+
+//            StartLoading();
+
+            Debug.Log("HandleConfirmAnswer.selectedOptions: " + questionView.SelectedOptions);
+
+            this._quizSystem.SubmitAnswer(
+                currentStage.currentQuestion.id,
+                new AnswerVO(questionView.SelectedOptions, timeLeft.ElapsedTime),
+                () => // onDone
                 {
-                    this.stage = stage;
-                    if (onDone != null)
-                        onDone();
-                });
+                    Debug.Log("HandleSubmitQuizButtonClick done");
+//                    FetchCurrentQuiz();
+                }
+            );
         }
 
-        public void SubmitAnswer (IAnswerVO answer, System.Action onDone)
+        private void HandleTimeOut()
         {
-            this._quizSystem.SubmitAnswer(this.stage.QuestionId, answer, onDone);
+            Debug.Log("QuizApp.HandleTimeOut");
+
+            // stop button and counter
+            questionView.EnableInput(false);
+            timeLeft.StopTimer();
+
+            this._quizSystem.SubmitAnswer(
+                currentStage.currentQuestion.id,
+                new AnswerVO(questionView.SelectedOptions, -1f),
+                () => // onDone
+                {
+                    Debug.Log("HandleTimeOut done");
+                    //                    FetchCurrentQuiz();
+                }
+            );
+        }
+
+
+        public QuestionVO Question { get { return currentStage.currentQuestion; } }
+
+        public void SubmitAnswer(AnswerVO answer, System.Action onDone)
+        {
+            this._quizSystem.SubmitAnswer(0, answer, onDone);
+        }
+
+
+        //        private void StartLoading()
+        //        {
+        //            loading = true;
+        //
+        //            if (OnLoadingEvent != null)
+        //                OnLoadingEvent(true);
+        //        }
+        //
+        //        private void StopLoading()
+        //        {
+        //            if (OnLoadingEvent != null)
+        //                OnLoadingEvent(false);
+        //
+        //            loading = false;
+        //        }
+
+
+        private void ClearView()
+        {
+            questionView.ClearView();
         }
     }
 }

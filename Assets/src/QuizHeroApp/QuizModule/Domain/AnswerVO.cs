@@ -3,16 +3,17 @@ using System.Collections.Generic;
 
 namespace com.xavi.QuizHero.QuizModule.Domain
 {
-    public class AnswerVO : IAnswerVO
+    [Serializable]
+    public class AnswerVO
     {
-        public AnswerVO(List<int> answerList)
+        public List<int> answer;
+        public float time;
+
+        public AnswerVO(List<int> answerList, float time)
         {
             this.answer = answerList;
+            this.time = time;
         }
-
-        public List<int> answer;
-
-        public List<int> Answer { get { return answer; } }
     }
 }
 

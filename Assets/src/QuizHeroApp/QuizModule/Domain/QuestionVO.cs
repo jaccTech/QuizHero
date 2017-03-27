@@ -3,15 +3,15 @@
 namespace com.xavi.QuizHero.QuizModule.Domain
 {
     [System.Serializable]
-    public class QuestionVO : IQuestionVO
+    public class QuestionVO
     {
-        public string question;
-        public List<string> options;
+        public long id;
         public bool isMultiselection;
-
-        public string Question { get { return question; } }
-        public List<string> Options { get { return options; } }
-        public bool IsMultiselection { get { return isMultiselection; } }
+        public long level;
+        public List<string> options;
+        public long points;
+        public string question;
+        public long time;
     }
 }
 

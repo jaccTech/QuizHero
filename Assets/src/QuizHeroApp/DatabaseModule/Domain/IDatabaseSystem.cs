@@ -1,4 +1,6 @@
-﻿
+﻿using System.Collections.Generic;
+
+
 namespace com.xavi.QuizHero.DatabaseModule.Domain
 {
     public static class DatabaseConstants
@@ -10,7 +12,11 @@ namespace com.xavi.QuizHero.DatabaseModule.Domain
 
     public interface IDatabaseSystem
     {
+        void GetListValueAsync<T>(string referencePath, ModelUpdatedEvent<List<T>> modelUpdatedEvent);
+
         void GetValueAsync<T>(string referencePath, ModelUpdatedEvent<T> modelUpdatedEvent);
+
+        void RegisterValueChangedListener<T>(string referencePath, System.Action<T> onDoneCallback);
 
         void SetRawJsonValueAsync (string referencePath, string value, System.Action onDoneCallback);
     }

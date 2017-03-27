@@ -1,15 +1,11 @@
-﻿
-namespace com.xavi.QuizHero.QuizModule.Domain
+﻿namespace com.xavi.QuizHero.QuizModule.Domain
 {
     [System.Serializable]
-    public class StageVO : IStageVO
+    public class StageVO
     {
         public long level;
-        public long question;
-        public IQuestionVO questionVO;
-
-        public long Level { get { return level; } }
-        public long QuestionId { get { return question; } }
-        public IQuestionVO QuestionVO { get { return questionVO; } }
+        public int state;
+        public double points;
+        public QuestionVO currentQuestion;
     }
 }

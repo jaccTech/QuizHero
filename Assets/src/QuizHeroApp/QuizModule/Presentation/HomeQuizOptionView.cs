@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using com.xavi.QuizHero.QuizModule.Domain;
 
 namespace com.xavi.QuizHero.QuizModule.Presentation
 {
-    public class QuizOptionView : MonoBehaviour
+    public class HomeQuizOptionView : MonoBehaviour
     {
         [SerializeField] private Text description;
         [SerializeField] Image selectedStateBackground;
@@ -14,9 +15,9 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
 
         private bool isSelected;
 
-        public int Id { get; private set; }
+        public QuizVO Data { get; private set; }
 
-        public delegate void OptionSelectionChangedEventDelegate(QuizOptionView quiz);
+        public delegate void OptionSelectionChangedEventDelegate(HomeQuizOptionView quiz);
 
         public event OptionSelectionChangedEventDelegate OptionSelectionChangedEvent;
 
@@ -30,10 +31,10 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
             }
         }
 
-        public void SetData(int id, string text)
+        public void SetData(QuizVO quiz)
         {
-            this.Id = id;
-            description.text = text;
+            this.Data = quiz;
+            description.text = quiz.description;
             IsSelected = false;
         }
 
@@ -51,7 +52,7 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
             unselectedStateBackground.enabled = !IsSelected;
         }
 
-        public class Factory : Factory<QuizOptionView>
+        public class Factory : Factory<HomeQuizOptionView>
         {
         }
     }

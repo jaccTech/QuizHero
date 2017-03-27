@@ -2,12 +2,16 @@
 
 namespace com.xavi.QuizHero.QuizModule.Domain
 {
-    public delegate void QuizUpdatedEvent(IStageVO quiz);
-
     public interface IQuizSystem
     {
-        void FetchCurrentStage(QuizUpdatedEvent quiz);
+        void FetchAvailableQuizzes(System.Action<List<QuizVO>> onDoneCallback);
 
-        void SubmitAnswer(long question, IAnswerVO answer, System.Action onDoneCallback);
+        void UpdateSelectedQuiz(QuizVO quiz, System.Action onDoneCallback);
+
+        void FetchCurrentStage(System.Action<StageVO> onDoneCallback);
+
+        void RegisterCurrentStageValueChangedListener(System.Action<StageVO> onDoneCallback);
+
+        void SubmitAnswer(long questionId, AnswerVO answer, System.Action onDoneCallback);
     }
 }
