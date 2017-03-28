@@ -13,7 +13,7 @@ namespace com.xavi.QuizHero.DatabaseModule.Domain
             FirebaseApp.DefaultInstance.SetEditorDatabaseUrl(DatabaseConstants.DatabaseURL);
         }
 
-        public void GetListValueAsync<T>(string referencePath, ModelUpdatedEvent<List<T>> modelUpdatedEvent)
+        public void GetListValueAsync<T>(string referencePath, System.Action<List<T>> modelUpdatedEvent)
         {
             // get the quiz
             FirebaseDatabase.DefaultInstance
@@ -47,7 +47,7 @@ namespace com.xavi.QuizHero.DatabaseModule.Domain
                 });
         }
 
-        public void GetValueAsync<T>(string referencePath, ModelUpdatedEvent<T> modelUpdatedEvent)
+        public void GetValueAsync<T>(string referencePath, System.Action<T> modelUpdatedEvent)
         {
             // get the quiz
             FirebaseDatabase.DefaultInstance
@@ -62,7 +62,7 @@ namespace com.xavi.QuizHero.DatabaseModule.Domain
                     else if (task.IsCompleted)
                     {
                         DataSnapshot snapshot = task.Result;
-                        Debug.LogError("snapshot.GetRawJsonValue: " + snapshot.GetRawJsonValue());
+                        Debug.Log("snapshot.GetRawJsonValue: " + snapshot.GetRawJsonValue());
                         modelUpdatedEvent(snapshot != null ? JsonUtility.FromJson<T>(snapshot.GetRawJsonValue()) : default(T));
                     }
                     else if (task.IsCanceled)
@@ -80,7 +80,7 @@ namespace com.xavi.QuizHero.DatabaseModule.Domain
             FirebaseDatabase.DefaultInstance
                 .GetReference(referencePath).ValueChanged += delegate (object sender, ValueChangedEventArgs args)
             {
-                Debug.Log("RegisterValueChangedListener... ");
+                Debug.Log(string.Format("ValueChanged {0} {1}", sender, args));
                 if (args.DatabaseError != null)
                 {
                     Debug.LogError(args.DatabaseError.Message);
@@ -90,7 +90,7 @@ namespace com.xavi.QuizHero.DatabaseModule.Domain
                 // Do something with the data in args.Snapshot
                 if (args.Snapshot != null)
                 {
-                    Debug.LogError("args.Snapshot.GetRawJsonValue(): " + args.Snapshot.GetRawJsonValue());
+                    Debug.Log("args.Snapshot.GetRawJsonValue(): " + args.Snapshot.GetRawJsonValue());
                     onDoneCallback(args.Snapshot != null ? JsonUtility.FromJson<T>(args.Snapshot.GetRawJsonValue()) : default(T));    
                 }
             };

@@ -13,42 +13,47 @@ namespace com.xavi.QuizHero.QuizModule.Application
         [SerializeField] private QuestionView questionView;
         [SerializeField] private TimerView timeLeft;
 
-        private StageVO currentStage;
+        private QuestionVO currentQuestion;
 //        private bool loading;
 
         void Start()
         {
             questionView.OnConfirmAnswerEvent += HandleConfirmAnswer;
-            this._quizSystem.RegisterCurrentStageValueChangedListener(HandleCurrentStageFetch);
+            this._quizSystem.AddCurrentQuestionValueChangedListener(HandleCurrentquestionFetch);
         }
 
         void OnEnable()
         {
             questionView.EnableInput(false);
             questionView.ClearView();
-            FetchCurrentStage();
+//            FetchCurrentStage();
+        }
+
+        void OnDisable()
+        {
+//            this._quizSystem.UnregisterCurrentStageValueChangedListener(HandleCurrentStageFetch);
         }
 
         private void FetchCurrentStage()
         {
-            this._quizSystem.FetchCurrentStage(HandleCurrentStageFetch);
+            this._quizSystem.FetchCurrentQuestion(HandleCurrentquestionFetch);
         }
 
-        private void HandleCurrentStageFetch(StageVO stage)
+        private void HandleCurrentquestionFetch(QuestionVO question)
         {
-            Debug.Log("QuizApp.HandleCurrentStageFetch " + stage);
-            currentStage = stage;
+            Debug.Log("QuizApp.HandleCurrentquestionFetch " + question);
+            currentQuestion = question;
 
-            if (currentStage != null)
+            if (currentQuestion != null)
             {
                 questionView.UpdateQuestion(
-                    currentStage.currentQuestion,
+                    currentQuestion,
                     () => // onDoneCallback
                     {
                         // enable input
                         questionView.EnableInput(true);
                         // set timer
-                        timeLeft.StartTimer(currentStage.currentQuestion.time, HandleTimeOut);
+                        timeLeft.StartTimer(currentQuestion.time, HandleTimeOut);
                     }
                 );
             }
@@ -71,7 +76,6 @@ namespace com.xavi.QuizHero.QuizModule.Application
             Debug.Log("HandleConfirmAnswer.selectedOptions: " + questionView.SelectedOptions);
 
             this._quizSystem.SubmitAnswer(
-                currentStage.currentQuestion.id,
                 new AnswerVO(questionView.SelectedOptions, timeLeft.ElapsedTime),
                 () => // onDone
                 {
@@ -90,24 +94,13 @@ namespace com.xavi.QuizHero.QuizModule.Application
             timeLeft.StopTimer();
 
             this._quizSystem.SubmitAnswer(
-                currentStage.currentQuestion.id,
                 new AnswerVO(questionView.SelectedOptions, -1f),
                 () => // onDone
                 {
                     Debug.Log("HandleTimeOut done");
-                    //                    FetchCurrentQuiz();
                 }
             );
         }
-
-
-        public QuestionVO Question { get { return currentStage.currentQuestion; } }
-
-        public void SubmitAnswer(AnswerVO answer, System.Action onDone)
-        {
-            this._quizSystem.SubmitAnswer(0, answer, onDone);
-        }
-
 
         //        private void StartLoading()
         //        {

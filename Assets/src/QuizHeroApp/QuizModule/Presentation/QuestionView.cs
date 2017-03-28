@@ -19,6 +19,7 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
         private Dictionary<int,AswerOptionView> options = new Dictionary<int, AswerOptionView>();
         private List<int> selectedOptions = new List<int>();
         private QuestionVO currentQuestion;
+        private bool inputEnabled;
 
         public System.Action OnConfirmAnswerEvent;
 
@@ -32,6 +33,11 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
 
         public void UpdateQuestion(QuestionVO question, System.Action onDoneCallback)
         {
+            if (currentQuestion != null && currentQuestion.id == question.id)
+                return;
+
+            Debug.Log("QuestionView.UpdateQuestion");
+
             currentQuestion = question;
 
             StartCoroutine(UpdateQuestionCoroutine(onDoneCallback));
@@ -74,6 +80,9 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
 
         private void HandleOptionSelectedChanged(AswerOptionView optionView)
         {
+            if (!inputEnabled)
+                return;
+
             if (optionView.IsSelected)
             {
                 // deselect all if not multiselection
@@ -105,14 +114,13 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
             if (currentQuestion.options.Count == 0)
                 return;
             
-            Debug.Log("HandleConfirmButtonClick.selectedOptions: " + currentQuestion.options);
-
             if (OnConfirmAnswerEvent != null)
                 OnConfirmAnswerEvent();
         }
 
         public void EnableInput (bool enable)
         {
+            inputEnabled = enable;
             confirmtButton.enabled = enable;
         }
 

@@ -8,13 +8,11 @@ namespace com.xavi.QuizHero.DatabaseModule.Domain
         public const string DatabaseURL = "https://quizgame-ba103.firebaseio.com";
     }
 
-    public delegate void ModelUpdatedEvent<T>(T model);
-
     public interface IDatabaseSystem
     {
-        void GetListValueAsync<T>(string referencePath, ModelUpdatedEvent<List<T>> modelUpdatedEvent);
+        void GetListValueAsync<T>(string referencePath, System.Action<List<T>> modelUpdatedEvent);
 
-        void GetValueAsync<T>(string referencePath, ModelUpdatedEvent<T> modelUpdatedEvent);
+        void GetValueAsync<T>(string referencePath, System.Action<T> modelUpdatedEvent);
 
         void RegisterValueChangedListener<T>(string referencePath, System.Action<T> onDoneCallback);
 

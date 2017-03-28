@@ -8,10 +8,10 @@ namespace com.xavi.QuizHero.QuizModule.Domain
 
         void UpdateSelectedQuiz(QuizVO quiz, System.Action onDoneCallback);
 
-        void FetchCurrentStage(System.Action<StageVO> onDoneCallback);
+        void FetchCurrentQuestion(System.Action<QuestionVO> onDoneCallback);
 
-        void RegisterCurrentStageValueChangedListener(System.Action<StageVO> onDoneCallback);
+        void AddCurrentQuestionValueChangedListener(System.Action<QuestionVO> onDoneCallback);
 
-        void SubmitAnswer(long questionId, AnswerVO answer, System.Action onDoneCallback);
+        void SubmitAnswer(AnswerVO answer, System.Action onDoneCallback);
     }
 }

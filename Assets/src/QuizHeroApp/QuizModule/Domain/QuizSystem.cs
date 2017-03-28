@@ -7,10 +7,20 @@ using System.Collections.Generic;
 
 namespace com.xavi.QuizHero.QuizModule.Domain
 {
+    static class ObjectReference
+    {
+        public static string QUIZ_LIST_REF = "/quizzes";
+        public static string SELECTED_QUIZ_REF(string uid) { return "users/" + uid + "/selectedQuiz"; }
+        public static string CURRENT_ANSWER_REF(string uid) { return "users/" + uid + "/currentStage/currentAnswer"; }
+        public static string CURRENT_QUESTION_REF(string uid) { return "users/" + uid + "/currentStage/currentQuestion"; }
+    }
+
     public class QuizSystem : IQuizSystem
     {
         private IDatabaseSystem _databaseSystem;
         private ILoginSystem _loginSystem;
+
+
 
         private string UserId { get { return _loginSystem.LoginData.UserId; } }
 
@@ -24,7 +34,7 @@ namespace com.xavi.QuizHero.QuizModule.Domain
         {
             // get quiz list
             this._databaseSystem.GetListValueAsync<QuizVO>(
-                "/quizzes",
+                ObjectReference.QUIZ_LIST_REF,
                 (List<QuizVO> quizzes) =>
                 {
                     onDoneCallback(quizzes);
@@ -36,35 +46,32 @@ namespace com.xavi.QuizHero.QuizModule.Domain
         {
             Debug.Log("UpdateSelectedQuiz quiz " + quiz);
             this._databaseSystem.SetRawJsonValueAsync(
-                "users/" + UserId + "/selectedQuiz",
+                ObjectReference.SELECTED_QUIZ_REF(UserId),
                 JsonUtility.ToJson(quiz),
                 onDoneCallback);
         }
 
-        public void FetchCurrentStage(System.Action<StageVO> onDoneCallback)
+        public void FetchCurrentQuestion(System.Action<QuestionVO> onDoneCallback)
         {
-            this._databaseSystem.GetValueAsync<StageVO>(
-                "users/" + UserId + "/currentStage",
-                (StageVO stage) =>
-                {
-                    onDoneCallback(stage);
-                }
-            );
-        }
-
-        public void RegisterCurrentStageValueChangedListener(System.Action<StageVO> onDoneCallback)
-        {
-            this._databaseSystem.RegisterValueChangedListener<StageVO>(
-                "users/" + UserId + "/currentStage",
+            this._databaseSystem.GetValueAsync<QuestionVO>(
+                ObjectReference.CURRENT_QUESTION_REF(UserId),
                 onDoneCallback
             );
         }
 
-        public void SubmitAnswer(long quizId, AnswerVO answer, System.Action onDoneCallback)
+        public void AddCurrentQuestionValueChangedListener(System.Action<QuestionVO> onDoneCallback)
+        {
+            this._databaseSystem.RegisterValueChangedListener<QuestionVO>(
+                ObjectReference.CURRENT_QUESTION_REF(UserId),
+                onDoneCallback
+            );
+        }
+
+        public void SubmitAnswer(AnswerVO answer, System.Action onDoneCallback)
         {
             Debug.Log("submiting answer " + answer);
             this._databaseSystem.SetRawJsonValueAsync(
-                "answers/" + UserId + "/" + quizId,
+                ObjectReference.CURRENT_ANSWER_REF(UserId),
                 JsonUtility.ToJson(answer),
                 onDoneCallback);
         }
