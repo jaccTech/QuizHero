@@ -18,8 +18,8 @@ namespace com.xavi.QuizHero.QuizModule.Application
 
         void Start()
         {
-            questionView.OnConfirmAnswerEvent += HandleConfirmAnswer;
             this._quizSystem.AddCurrentQuestionValueChangedListener(HandleCurrentquestionFetch);
+            questionView.OnConfirmAnswerEvent += HandleConfirmAnswer;
         }
 
         void OnEnable()
@@ -76,10 +76,10 @@ namespace com.xavi.QuizHero.QuizModule.Application
             Debug.Log("HandleConfirmAnswer.selectedOptions: " + questionView.SelectedOptions);
 
             this._quizSystem.SubmitAnswer(
-                new AnswerVO(questionView.SelectedOptions, timeLeft.ElapsedTime),
+                new AnswerVO(currentQuestion.id, questionView.SelectedOptions, timeLeft.ElapsedTime),
                 () => // onDone
                 {
-                    Debug.Log("HandleSubmitQuizButtonClick done");
+                    Debug.Log("HandleConfirmAnswer onDone");
 //                    FetchCurrentQuiz();
                 }
             );
@@ -94,29 +94,23 @@ namespace com.xavi.QuizHero.QuizModule.Application
             timeLeft.StopTimer();
 
             this._quizSystem.SubmitAnswer(
-                new AnswerVO(questionView.SelectedOptions, -1f),
+                new AnswerVO(currentQuestion.id, questionView.SelectedOptions, -1f),
                 () => // onDone
                 {
-                    Debug.Log("HandleTimeOut done");
+                    Debug.Log("HandleTimeOut onDone");
                 }
             );
         }
 
-        //        private void StartLoading()
-        //        {
-        //            loading = true;
-        //
-        //            if (OnLoadingEvent != null)
-        //                OnLoadingEvent(true);
-        //        }
-        //
-        //        private void StopLoading()
-        //        {
-        //            if (OnLoadingEvent != null)
-        //                OnLoadingEvent(false);
-        //
-        //            loading = false;
-        //        }
+//        private void StartLoading()
+//        {
+//            loading = true;
+//        }
+//
+//        private void StopLoading()
+//        {
+//            loading = false;
+//        }
 
 
         private void ClearView()
