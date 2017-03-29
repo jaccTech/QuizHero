@@ -10,7 +10,7 @@ namespace com.xavi.QuizHero.QuizModule.Domain
     static class ObjectReference
     {
         public static string QUIZ_LIST_REF = "/quizzes";
-        public static string SELECTED_QUIZ_REF(string uid) { return "users/" + uid + "/selectedQuiz"; }
+        public static string SELECTED_QUIZ_REF(string uid) { return "users/" + uid + "/currentStage/selectedQuiz"; }
         public static string CURRENT_ANSWER_REF(string uid) { return "users/" + uid + "/currentStage/currentAnswer"; }
         public static string CURRENT_QUESTION_REF(string uid) { return "users/" + uid + "/currentStage/currentQuestion"; }
     }
