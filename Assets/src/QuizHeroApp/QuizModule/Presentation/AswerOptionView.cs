@@ -16,9 +16,9 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
 
         public int Id { get; private set; }
 
-        public delegate void OptionSelectionChangedEventDelegate(AswerOptionView quiz);
+        public delegate void OptionClickedEventDelegate(AswerOptionView quiz);
 
-        public event OptionSelectionChangedEventDelegate OptionSelectionChangedEvent;
+        public event OptionClickedEventDelegate OptionClickedEvent;
 
         public bool IsSelected
         {
@@ -39,10 +39,8 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
 
         public void HandleClick()
         {
-            IsSelected = !IsSelected;
-
-            if (OptionSelectionChangedEvent != null)
-                OptionSelectionChangedEvent(this);
+            if (OptionClickedEvent != null)
+                OptionClickedEvent(this);
         }
 
         void UpdateVisuals()

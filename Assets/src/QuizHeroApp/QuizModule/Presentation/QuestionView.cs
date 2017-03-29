@@ -67,7 +67,7 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
         private void AddOption(int id, string text)
         {
             AswerOptionView optionView = _quizOptionFactory.Create();
-            optionView.OptionSelectionChangedEvent += HandleOptionSelectedChanged;
+            optionView.OptionClickedEvent += HandleOptionClickedEvent;
             optionView.SetData(id, text);
 
             RectTransform optionTransform = optionView.gameObject.GetComponent<RectTransform>();
@@ -78,13 +78,16 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
             options.Add(id, optionView);
         }
 
-        private void HandleOptionSelectedChanged(AswerOptionView optionView)
+        private void HandleOptionClickedEvent(AswerOptionView optionView)
         {
             if (!inputEnabled)
                 return;
 
-            if (optionView.IsSelected)
+            if (!optionView.IsSelected)
             {
+                // set option as selected
+                optionView.IsSelected = true;
+
                 // deselect all if not multiselection
                 if (!this.currentQuestion.isMultiselection)
                 {
@@ -101,6 +104,9 @@ namespace com.xavi.QuizHero.QuizModule.Presentation
             else
             {
                 // deselect current one
+                optionView.IsSelected = false;
+
+                // remove from selected list
                 selectedOptions.Remove(optionView.Id);
             }
 
